@@ -16,7 +16,8 @@ public class HolidaysManager : MonoBehaviour
 
     
     //Private props
-    private HolidaysWrapper _config;
+    //private HolidaysWrapper _config;
+    private Dictionary<string, HolidayEntry> _holidaysSchedule = new Dictionary<string, HolidayEntry>(StringComparer.OrdinalIgnoreCase);
     
     //References
     private HolidayConfigLoader _configLoader;
@@ -26,12 +27,7 @@ public class HolidaysManager : MonoBehaviour
     private void Update()
     {
         TimeManager.SetTimeOffset(testTimeOffset);
-        //CreateHolidays();
-    }
-
-    private void Awake()
-    {
-        CreateAllSystems();
+        CreateHolidays();
     }
 
     public void Start()
@@ -39,21 +35,27 @@ public class HolidaysManager : MonoBehaviour
         Init();
     }
 
-    private void CreateAllSystems()
-    {
-        _configLoader = new HolidayConfigLoader();
-    }
-
     private void Init()
     {
-        _config = _configLoader.LoadConfig(configPath);
-        
+        BuildConfigData();
         CreateHolidays();
+    }
+
+    private void BuildConfigData()
+    {
+        _configLoader ??= new HolidayConfigLoader();
+        HolidaysWrapper config = _configLoader.LoadConfig(configPath);
+        
+        //Making all holidays unique by adding them into dict, and it will be more performant if we need to get holiday my type
+        _holidaysSchedule = new Dictionary<string, HolidayEntry>(StringComparer.OrdinalIgnoreCase);
+        foreach (HolidayEntry entry in config.holidaySchedule)
+            _holidaysSchedule.TryAdd(entry.GetHolidayType(), entry);
     }
 
     private void CreateHolidays()
     {
-        if (fetchConfigOnUpdate) _config = _configLoader.LoadConfig(configPath);
+        if (fetchConfigOnUpdate) 
+            BuildConfigData();
         
         //Remove existing
         if (topHolidaysContainer)
@@ -62,17 +64,28 @@ public class HolidaysManager : MonoBehaviour
             foreach (Transform item in bottomHolidaysContainer) Destroy(item.gameObject);
         
         //Spawn new
-        foreach (HolidayEntry entry in _config.holidaySchedule)
+        foreach (var entry in _holidaysSchedule)
         {
-            HolidayItemData holidayItemData = GetHolidayItemData(entry.GetHolidayType());
-            if (!holidayItemData && !holidayItemData.IsValid()) continue;
-            if (!entry.IsInTimeRange(TimeManager.GetUtcTime())) continue;
+            HolidayItemData holidayItemData = GetHolidayItemData(entry.Value.GetHolidayType());
+            if (holidayItemData == null || !holidayItemData.IsValid()) continue;
+            if (!entry.Value.IsInTimeRange(TimeManager.GetUtcTime())) continue;
 
             HolidayView HolidayViewInstance = Instantiate(holidayItemData.GetHolidayViewPrefab,
                 GetContainerForHoliday(holidayItemData.GetHolidayAlignment));
             
-            HolidayViewInstance.Init(entry);
+            HolidayViewInstance.Init(entry.Value);
         }
+        // foreach (HolidayEntry entry in _config.holidaySchedule)
+        // {
+        //     HolidayItemData holidayItemData = GetHolidayItemData(entry.GetHolidayType());
+        //     if (!holidayItemData && !holidayItemData.IsValid()) continue;
+        //     if (!entry.IsInTimeRange(TimeManager.GetUtcTime())) continue;
+        //
+        //     HolidayView HolidayViewInstance = Instantiate(holidayItemData.GetHolidayViewPrefab,
+        //         GetContainerForHoliday(holidayItemData.GetHolidayAlignment));
+        //     
+        //     HolidayViewInstance.Init(entry);
+        // }
     }
 
     private HolidayItemData GetHolidayItemData(string holidayType)
