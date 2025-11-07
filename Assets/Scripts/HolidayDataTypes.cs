@@ -33,6 +33,11 @@ public class HolidayEntry
         
         return true;
     }
+
+    public bool IsInTimeRange(DateTime timeRange)
+    {
+        return timeRange >= GetStartDate && timeRange <= GetEndDate;
+    }
 }
 
 [Serializable]

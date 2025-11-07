@@ -7,7 +7,7 @@ public class HolidaysManager : MonoBehaviour
 {
     [Header("Config")]
     [SerializeField] private string configPath;
-    [SerializeField] private bool fetchConfigOnUpdate;
+    [SerializeField, Tooltip("May be more expensive")] private bool fetchConfigOnUpdate;
     [SerializeField] private HolidayItemData[] allHolidays;
 
     [Header("UI")] 
@@ -20,6 +20,14 @@ public class HolidaysManager : MonoBehaviour
     
     //References
     private HolidayConfigLoader _configLoader;
+
+    public int testTimeOffset;
+
+    private void Update()
+    {
+        TimeManager.SetTimeOffset(testTimeOffset);
+        //CreateHolidays();
+    }
 
     private void Awake()
     {
@@ -57,8 +65,8 @@ public class HolidaysManager : MonoBehaviour
         foreach (HolidayEntry entry in _config.holidaySchedule)
         {
             HolidayItemData holidayItemData = GetHolidayItemData(entry.GetHolidayType());
-            if (holidayItemData == null) continue;
-            if (!holidayItemData.IsValid()) continue;
+            if (!holidayItemData && !holidayItemData.IsValid()) continue;
+            if (!entry.IsInTimeRange(TimeManager.GetUtcTime())) continue;
 
             HolidayView HolidayViewInstance = Instantiate(holidayItemData.GetHolidayViewPrefab,
                 GetContainerForHoliday(holidayItemData.GetHolidayAlignment));

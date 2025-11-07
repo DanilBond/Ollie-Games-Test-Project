@@ -11,6 +11,8 @@ public static class TimeManager
     {
         return debugOffsetMinutes == 0 
             ? DateTime.UtcNow 
-            : DateTime.UtcNow.AddMinutes(debugOffsetMinutes);
+            : DateTime.UtcNow.AddDays(debugOffsetMinutes);
     }
+    
+    public static void SetTimeOffset(int newOffsetMinutes) => debugOffsetMinutes = newOffsetMinutes;
 }
