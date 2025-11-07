@@ -5,6 +5,12 @@ using System.Globalization;
 using Newtonsoft.Json;
 using UnityEngine;
 
+public enum HolidayAlignment
+{
+    Top,
+    Bottom
+}
+
 [System.Serializable]
 public class HolidayEntry
 {
