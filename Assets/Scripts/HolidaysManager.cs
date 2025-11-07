@@ -21,17 +21,11 @@ public class HolidaysManager : MonoBehaviour
         new Dictionary<string, HolidayEntry>(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, HolidayView> _holidaysSpawnedByType =
         new Dictionary<string, HolidayView>(StringComparer.OrdinalIgnoreCase);
+
+    private float _holidaysCheckTimer;
     
     //References
     private HolidayConfigLoader _configLoader;
-
-    public int testTimeOffset;
-
-    private void Update()
-    {
-        TimeManager.SetTimeOffset(testTimeOffset);
-        ReconcileHolidays();
-    }
 
     public void Start()
     {
@@ -60,10 +54,19 @@ public class HolidaysManager : MonoBehaviour
             _holidaysScheduleByType.TryAdd(entry.GetHolidayType(), entry);
         }
     }
+    
+    private void Update()
+    {
+        _holidaysCheckTimer += Time.unscaledDeltaTime;
+        if (_holidaysCheckTimer >= updateIntervalInSeconds)
+        {
+            _holidaysCheckTimer = 0f;
+            ReconcileHolidays();
+        }
+    }
 
     private void ReconcileHolidays()
     {
-        float start = Time.realtimeSinceStartup;
         ////////////////////////////////////////////////////////////////////////////////////////////
         // The new method doesn't recreate the entire UI, but only adds/removes changed elements.
         // This reduces the load from ~0.4 ms to ~0.013 ms per check.
@@ -131,9 +134,6 @@ public class HolidaysManager : MonoBehaviour
                 view.transform.SetParent(target, worldPositionStays: false);
             }
         }
-        
-        float end = Time.realtimeSinceStartup;
-        Logger.Log($"Время: {(end - start) * 1000f} ms");
     }
 
     private HolidayItemData GetHolidayItemData(string holidayType)

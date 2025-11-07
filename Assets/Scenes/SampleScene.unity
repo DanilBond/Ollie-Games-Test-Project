@@ -1233,11 +1233,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   configPath: holiday_config
+  fetchConfigOnUpdate: 0
+  updateIntervalInSeconds: 1
   allHolidays:
   - {fileID: 11400000, guid: a996613f2a4878942bb915f3df61e702, type: 2}
   - {fileID: 11400000, guid: c4ed40c9e7859d74ba67cb0fc8fef51b, type: 2}
   topHolidaysContainer: {fileID: 1017445175}
   bottomHolidaysContainer: {fileID: 1226697239}
+  testTimeOffset: 0
 --- !u!4 &1933261019
 Transform:
   m_ObjectHideFlags: 0
