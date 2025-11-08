@@ -31,14 +31,21 @@ public class DebugManager : MonoBehaviour
 
     private void Start()
     {
-        if (!IsEditorOrDev()) return;
-
-        TryGetHolidaysManager();
-
-        if (debugCanvas == null)
+        if (IsEditorOrDev())
         {
-            Logger.LogWarning("DebugCanvas is missing.");
-            return;
+            TryGetHolidaysManager();
+
+            if (debugCanvas == null)
+            {
+                Logger.LogWarning("DebugCanvas is missing.");
+                return;
+            }
+            
+            debugCanvas.SetActive(true);
+        }
+        else
+        {
+            debugCanvas.SetActive(false);
         }
     }
 

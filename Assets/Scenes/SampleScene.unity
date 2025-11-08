@@ -802,7 +802,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ed94d05682ea2f429c3e176347adff3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableDebugging: 0
+  enableDebugging: 1
   holidaysManager: {fileID: 1933261018}
   debugCanvas: {fileID: 1514496639060552586}
   updateIntervalInSeconds: 0.1
