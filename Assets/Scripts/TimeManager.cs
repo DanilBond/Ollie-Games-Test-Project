@@ -5,14 +5,10 @@ using UnityEngine;
 
 public static class TimeManager
 {
-    private static int debugOffsetMinutes;
+    private static int debugOffsetHours;
     
-    public static DateTime GetUtcTime()
-    {
-        return debugOffsetMinutes == 0 
-            ? DateTime.UtcNow 
-            : DateTime.UtcNow.AddDays(debugOffsetMinutes);
-    }
+    public static DateTime GetUtcTime() => DateTime.UtcNow.AddHours(debugOffsetHours);
     
-    public static void SetTimeOffset(int newOffsetMinutes) => debugOffsetMinutes = newOffsetMinutes;
+    public static void SetTimeOffset(int newOffsetMinutes) => debugOffsetHours = newOffsetMinutes;
+    public static int GetTimeOffset() => debugOffsetHours;
 }

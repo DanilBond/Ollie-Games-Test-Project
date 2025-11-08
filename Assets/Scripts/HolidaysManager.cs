@@ -32,12 +32,27 @@ public class HolidaysManager : MonoBehaviour
         Init();
     }
 
+    private void Update()
+    {
+        _holidaysCheckTimer += Time.unscaledDeltaTime;
+        if (_holidaysCheckTimer >= updateIntervalInSeconds)
+        {
+            _holidaysCheckTimer = 0f;
+            ReconcileHolidays();
+        }
+    }
+    
+    private void OnDestroy()
+    {
+        CleanupSpawned();
+    }
+    
     private void Init()
     {
         BuildConfigData();
         ReconcileHolidays();
     }
-
+    
     private void BuildConfigData()
     {
         //~0.04 ms
@@ -52,16 +67,6 @@ public class HolidaysManager : MonoBehaviour
         {
             if (entry == null) continue;
             _holidaysScheduleByType.TryAdd(entry.GetHolidayType(), entry);
-        }
-    }
-    
-    private void Update()
-    {
-        _holidaysCheckTimer += Time.unscaledDeltaTime;
-        if (_holidaysCheckTimer >= updateIntervalInSeconds)
-        {
-            _holidaysCheckTimer = 0f;
-            ReconcileHolidays();
         }
     }
 
@@ -136,6 +141,18 @@ public class HolidaysManager : MonoBehaviour
         }
     }
 
+    private void CleanupSpawned()
+    {
+        foreach (var view in _holidaysSpawnedByType.Values)
+        {
+            if (view != null)
+                Destroy(view.gameObject);
+        }
+
+        _holidaysSpawnedByType.Clear();
+        _holidaysScheduleByType.Clear();
+    }
+    
     private HolidayItemData GetHolidayItemData(string holidayType)
     {
         for (var i = 0; i < allHolidays.Length; i++)
@@ -165,4 +182,6 @@ public class HolidaysManager : MonoBehaviour
 
         return target;
     }
+    
+    public IReadOnlyCollection<string> GetActiveHolidayTypes() => /*Copy to new list to prevent modifying original*/ new List<string>(_holidaysSpawnedByType.Keys);
 }
